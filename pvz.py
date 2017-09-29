@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 '''
-description: a python module contains some method of game "Plants Vs Zombies"
-author: no_doudle
-date: 2017-2-24 20:00
+File Name: pvz.py
+Description: a python module contains some method of game "Plants Vs Zombies"
+Author: no_doudle
+Date: 2017-2-24 20:00
+Modified By: lmintlcx
+Modified Date: 2017-9-24 22:00
 '''
 
 import win32api, win32con, win32gui, win32process, ctypes, threading
