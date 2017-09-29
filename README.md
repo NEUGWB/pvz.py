@@ -150,32 +150,46 @@ Pao(2, 9) # 炮击2路9列
 
 给出几个例子, 按顺序由浅入深. 具体细节看代码及其注释. 
 
-PE经典十炮
+## PE经典十炮
+
 节奏 P6: PP|PP|PP|PP|PP|N
+
 视频 https://www.bilibili.com/video/av14875298/
 
-PE前置八炮
+## PE前置八炮
+
 节奏 ch6: PP|I-PP|PP|I-PP, (6|12|6|12)
+
 视频 https://www.bilibili.com/video/av14880401/
 
-PE卖萌六炮
+## PE卖萌六炮
+
 节奏 ch5: PP|I-PP|I-PP, (6|15|15)
+
 视频 https://www.bilibili.com/video/av14888150/
 
-PE双冰十六炮
+## PE双冰十六炮
+
 节奏 ch6: PPDD|IPP-PP|PPDD|IPP-PP, (6|12|6|12)
+
 视频 https://www.bilibili.com/video/av14877298/
 
-PE拦截二十炮
+## PE拦截二十炮
+
 节奏 ch6: PPSDD|IPP-PPD|PPSDD|IPP-PPD, (6|12|6|12)
+
 视频 https://www.bilibili.com/video/av14881393/
 
-NE前置八炮
+## NE前置八炮
+
 节奏 C7u-56s: PP|I-PP|IPP-PP|PP|cccPP, (6|15|20|6|9)
+
 视频 https://www.bilibili.com/video/av14611760/
 
-FE无冰瓜十八炮
+## FE无冰瓜十八炮
+
 节奏 ch9-56s: PPDD|IPP-PP|PPDD|IPP-PP|PPDD|PPDD|PPN, (6|13|6|13|6|6|6)
+
 视频 https://www.bilibili.com/video/av14889388/
 
 
