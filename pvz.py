@@ -54,8 +54,12 @@ def MDOWN(x, y, right = False):
         win32api.SendMessage(hwnd, win32con.WM_LBUTTONDOWN, win32con.NULL, y*65536+x)
 
 def Click(x, y, right = False):
-    MDOWN(x, y)
-    MUP(x, y)
+    if(right):
+        MDOWN(x, y, True)
+        MUP(x, y, True)
+    else:
+        MDOWN(x, y)
+        MUP(x, y)
 
 def safeClick():
     Click(60, 50, True)
