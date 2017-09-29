@@ -113,11 +113,11 @@ def Pnt(pnt):
     row = pnt[0]
     column = pnt[1]
     
-    if (scene == 'PE'):
-        Click(80 * column, 30 + 85 * row)
-    elif (scene == 'DE'):
+    if (scene == 'DE') or (scene == 'NE'):
         Click(80 * column, 30 + 100 * row)
-    else :
+    elif (scene == 'PE') or (scene == 'FE'):
+        Click(80 * column, 30 + 85 * row)
+    elif (scene == 'RE') or (scene == 'ME'):
         if (column > 5):
             Click(80 * column, 85 * row)
         else:
