@@ -61,6 +61,19 @@ def Click(x, y, right = False):
         MDOWN(x, y)
         MUP(x, y)
 
+def MoveClick(x, y, right = False):
+    x_0, y_0 = win32gui.GetCursorPos()
+    left, top, right, bottom = win32gui.GetWindowRect(hwnd)
+    border_width = (right - left - 800) / 2
+    title_bar_height = bottom - top - border_width - 600
+    x_1, y_1 = left + border_width + x, top + title_bar_height + y
+    x_1, y_1 = int(x_1), int(y_1)
+    win32api.SetCursorPos((x_1, y_1))
+    sleep(0.02)
+    Click(x, y, right)
+    sleep(0.01)
+    win32api.SetCursorPos((x_0, y_0))
+
 def safeClick():
     Click(60, 50, True)
     
@@ -77,7 +90,7 @@ def Countdown():
     
 def ChooseCard(row, column, imitater = False):
     if(imitater):
-        Click(500, 550) #center of imitater
+        MoveClick(490, 550) #center of imitater
         sleep(0.2) #second, wait for menu of seeds
         x, y = 190, 125 #top left corner of imitater peashooter
     else:
