@@ -9,8 +9,6 @@ from time import sleep
 
 x, y = win32api.GetCursorPos()
 hwnd = win32gui.WindowFromPoint((x, y))
-# hwnd = win32gui.GetForegroundWindow()
-# equal to
 nowPao = 0
 memoryAddress = -1
 Screenx = 800
@@ -90,21 +88,20 @@ def Countdown():
     
 def ChooseCard(row, column, imitater = False):
     if(imitater):
-        MoveClick(490, 550) #center of imitater
-        sleep(0.2) #second, wait for menu of seeds
-        x, y = 190, 125 #top left corner of imitater peashooter
+        MoveClick(490, 550)
+        sleep(0.2)
+        x, y = 190, 125
     else:
-        x, y = 22, 123 #top left corner of peashooter
+        x, y = 22, 123
     x += 50/2
     y += 70/2
-    #a card is 50px in width(+3px space) and 70px in height 
     x += (column - 1)* 53
     y += (row - 1)* 70
     Click(x, y)
         
 def LetsRock():
-    sleep(0.01) #wait for button available
-    MDOWN(225, 565) #LET'S ROCK button
+    sleep(0.01)
+    MDOWN(225, 565)
     sleep(0.01) 
     MUP(225, 565) 
 
@@ -126,13 +123,13 @@ def Pnt(pnt):
         else:
             Click(80 * column, 85 * row + (120 - 20 * column))
 
-def preJudge(t, hugewave = False): #unit of t:centisec
+def preJudge(t, hugewave = False):
     if(hugewave == False):
         while(Countdown() > t):
             pass 
     
     else:
-        while(Countdown() > 4):#warning appears, new wave after 7.24s
+        while(Countdown() > 4):
             pass
         sleep((724-t)/100)
 
@@ -146,7 +143,7 @@ def Pao(row, column):
     nowPao += 1
     
 def wave20():
-    preJudge(150, True) #coral, appear in 2s(prejudge 1.73) after warning disappear; 2.5s(prejudge 1.23) start eating
+    preJudge(150, True)
     Pao(4,7)
     sleep(0.9)
     Pao(2,9)
