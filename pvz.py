@@ -8,14 +8,12 @@ Modified By: lmintlcx
 Modified Date: 2017-9-24 22:00
 '''
 
-import win32api, win32con, win32gui, win32process, ctypes, threading
+import win32api, win32con, win32gui, win32process, ctypes, threading, win32ui
+import time
 from time import sleep
 
-x, y = win32api.GetCursorPos()
-hwnd = win32gui.WindowFromPoint((x, y))
+hwnd = win32gui.WindowFromPoint(win32api.GetCursorPos())
 nowPao = 0
-countMemAddress = -1
-zombNumMemAddress = -1
 Screenx = 800
 Screeny = 600
 scene = 'PE'
@@ -23,9 +21,7 @@ scene = 'PE'
 PROCESS_ALL_ACCESS  =  ( 0x000F0000 | 0x00100000 | 0xFFF )
 tid,pid = win32process.GetWindowThreadProcessId(hwnd)
 PROCESS = win32api.OpenProcess(PROCESS_ALL_ACCESS, 0, pid)
-rPM = ctypes.WinDLL('kernel32', use_last_error=True).ReadProcessMemory
-buffer = ctypes.create_string_buffer(4)
-bytes_read = ctypes.c_size_t()
+kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
 
 #植物大战僵尸版本，0原版，1年度版
 PVZ_VER = 1
@@ -39,13 +35,13 @@ address_list = { "WaveCountDown" :  [[0x6a9ec0, 0x768, 0x559c], [0x729670, 0x868
                  "PlantNum" :       [[0x6A9EC0, 0x768, 0xbc],[0x729670,0x868,0xd4]],}
 
 def ReadMemory(address):
-    global PROCESS, buffer
+    buffer = ctypes.create_string_buffer(4)
+    bytes_read = ctypes.c_size_t()
 
     OldProtect = ctypes.c_size_t()
-    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
     kernel32.VirtualProtect(address, 1, 0x40, ctypes.byref(OldProtect));
     
-    rPM(PROCESS.handle, address, buffer, 4, ctypes.byref(bytes_read))
+    kernel32.ReadProcessMemory(PROCESS.handle, address, buffer, 4, ctypes.byref(bytes_read))
     ret = 0x0
     cnt = len(buffer.value) -1
     while cnt >= 0:
@@ -56,9 +52,9 @@ def ReadMemory(address):
 
 def MemReader(addr):
     mem = -1
-    def Reader():
+    def Reader(reset = False):
         nonlocal mem
-        if  mem == -1:
+        if reset or mem == -1:
             mem = addr[0]
             for i in range(1, len(addr)):
                 mem = ReadMemory(mem)
@@ -107,8 +103,9 @@ def MoveClick(x, y, right = False):
     x_1, y_1 = int(x_1), int(y_1)
     win32api.SetCursorPos((x_1, y_1))
     sleep(0.02)
-    Click(x, y, right)
-    sleep(0.01)
+    MDOWN(x, y)
+    sleep(0.05)
+    MUP(x, y)
     win32api.SetCursorPos((x_0, y_0))
 
 def SafeClick():
@@ -130,23 +127,26 @@ def Countdown():
     return countdown
 
 def WriteMemory(address, b):
-    global PROCESS
-
     OldProtect = ctypes.c_size_t()
-    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
     kernel32.VirtualProtect(address, 1, 0x40, ctypes.byref(OldProtect));
 
     print("write mem", ctypes.sizeof(b), b.raw)
     bytes_write = ctypes.c_size_t()
-    print(rWM(PROCESS.handle, address, b, 3, ctypes.byref(bytes_write)))
+    kernel32.WriteProcessMemory(PROCESS.handle, address, b, ctypes.sizeof(b), ctypes.byref(bytes_write))
     print(bytes_write.value)
     print(win32api.GetLastError())
     if bytes_write.value > 0:
         print("write success")
+    else:
+        print("write fail", address)
+        
 #年度版后台
 #WriteMemory(0x4536b0,ctypes.create_string_buffer(bytes.fromhex('c20400')))
+def NoPause():
+    if PVZ_VER == 1:
+        WriteMemory(0x4536b0,ctypes.create_string_buffer(bytes.fromhex('c20400')))
         
-def window_capture(dpath): 
+def ScreenShot(dpath): 
     hwndDC = win32gui.GetDC(hwnd)  
     mfcDC=win32ui.CreateDCFromHandle(hwndDC)  
     saveDC=mfcDC.CreateCompatibleDC()  
@@ -160,6 +160,7 @@ def window_capture(dpath):
     saveDC.BitBlt((0,0),(w, h) , mfcDC, (0,0), win32con.SRCCOPY) 
     cc=time.gmtime() 
     bmpname=str(cc[0])+str(cc[1])+str(cc[2])+str(cc[3]+8)+str(cc[4])+str(cc[5])+'.bmp'
+    bmpname = time.strftime('%Y-%m-%d %H-%M-%S',time.localtime(time.time())) + '.bmp'
     bmpname = dpath + bmpname
     print(bmpname)
     saveBitMap.SaveBitmapFile(saveDC, bmpname) 
@@ -178,9 +179,7 @@ def ChooseCard(row, column, imitater = False):
 
 def LetsRock():
     sleep(0.2)
-    MDOWN(234, 567)
-    sleep(0.1)
-    MUP(234, 567)
+    MoveClick(234, 567)
 
 def Card(num):
     Click(50 + 51 * num, 42)
@@ -227,16 +226,3 @@ def Pao(row, column):
     SafeClick()
     nowPao = (1+nowPao)%len(paoList)
     
-def wave20():
-    preJudge(150, True)
-    Pao(4,7)
-    sleep(0.9)
-    Pao(2,9)
-    Pao(2,9)
-    Pao(5,9)
-    Pao(5,9)
-    sleep(1.08)
-    Pao(1,9)
-    Pao(2,9)
-    Pao(5,9)
-    Pao(5,9)
