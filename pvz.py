@@ -128,14 +128,41 @@ def Countdown():
         countdown = WaveCountdown()
         sleep(0.005)
     return countdown
-'''
-def ZombNum():
-    global zombNumMemAddress
-    if zombNumMemAddress < 0 :
-        zombNumMemAddress = ReadMemory(0x729670) + 0x868
-        zombNumMemAddress = ReadMemory(zombNumMemAddress) + 0xB8
-    return ReadMemory(zombNumMemAddress) 
-'''
+
+def WriteMemory(address, b):
+    global PROCESS
+
+    OldProtect = ctypes.c_size_t()
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel32.VirtualProtect(address, 1, 0x40, ctypes.byref(OldProtect));
+
+    print("write mem", ctypes.sizeof(b), b.raw)
+    bytes_write = ctypes.c_size_t()
+    print(rWM(PROCESS.handle, address, b, 3, ctypes.byref(bytes_write)))
+    print(bytes_write.value)
+    print(win32api.GetLastError())
+    if bytes_write.value > 0:
+        print("write success")
+#年度版后台
+#WriteMemory(0x4536b0,ctypes.create_string_buffer(bytes.fromhex('c20400')))
+        
+def window_capture(dpath): 
+    hwndDC = win32gui.GetDC(hwnd)  
+    mfcDC=win32ui.CreateDCFromHandle(hwndDC)  
+    saveDC=mfcDC.CreateCompatibleDC()  
+    saveBitMap = win32ui.CreateBitmap()  
+    
+    w = 800
+    h = 600
+    print(w,h) #图片大小 
+    saveBitMap.CreateCompatibleBitmap(mfcDC, w, h)  
+    saveDC.SelectObject(saveBitMap)  
+    saveDC.BitBlt((0,0),(w, h) , mfcDC, (0,0), win32con.SRCCOPY) 
+    cc=time.gmtime() 
+    bmpname=str(cc[0])+str(cc[1])+str(cc[2])+str(cc[3]+8)+str(cc[4])+str(cc[5])+'.bmp'
+    bmpname = dpath + bmpname
+    print(bmpname)
+    saveBitMap.SaveBitmapFile(saveDC, bmpname) 
 
 def ChooseCard(row, column, imitater = False):
     if(imitater):
