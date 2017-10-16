@@ -133,9 +133,18 @@ def ShanhuPao():
         pvz.nowPao = (1+pvz.nowPao)%len(pvz.paoList)
     else:
         Pao(4,7)
+
+nowPlantNum = 66 #最开始有66个固定植物
+def CheckPlant():
+    global nowPlantNum
+    num = PlantNum()
+    print("now plant", num)
+    if 0 < num < nowPlantNum:
+        ScreenShot("./")
+        nowPlantNum = num
         
+    
 def main():
-    print('nowopen %s' % win32gui.GetWindowText(hwnd)) # 打印窗口标题
     sleep(4) # 等四秒, 一般这段时间内开启录像
     ChoosingCard() # 选卡
     sleep(0.5) # 等半秒
@@ -150,6 +159,7 @@ def main():
     # wave的取值为1~20, 对应每次选卡共20波僵尸的处理
     for wave in range(1, 21):
         Collect()
+        CheckPlant()
         print('wave: %s' % wave)
         # 常用预判时间95cs
         # 第10波僵尸出生点偏右, 推迟到55cs并用樱桃补刀来消除延迟
@@ -208,5 +218,8 @@ def main():
 # 代码只在作为主程序运行时执行
 if __name__ == '__main__':
     while True:
+        print('nowopen %s' % win32gui.GetWindowText(hwnd)) # 打印窗口标题
+        NoPause()
+        sleep(2)
         main()
         sleep(8)
