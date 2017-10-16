@@ -35,10 +35,16 @@ address_list = { "WaveCountDown" :  [[0x6a9ec0, 0x768, 0x559c], [0x729670, 0x868
            "FinishedWaveNum" :      [[0x6A9EC0, 0x768, 0x557c],[0x729670,0x868,0x5594]],
             "InterfaceState" :      [[0x6A9EC0, 0x7fc],[0x729670, 0x91c]],
                  "WordKind" :       [[0x6a9ec0, 0x768, 0x140,0x8c],[0x729670,0x868,0x158,0x8c]],
-                 "WordShow" :       [[0x6a9ec0, 0x768, 0x140,0x4],[0x729670,0x868,0x158,0x4]],}
+                 "WordShow" :       [[0x6a9ec0, 0x768, 0x140,0x4],[0x729670,0x868,0x158,0x4]],
+                 "PlantNum" :       [[0x6A9EC0, 0x768, 0xbc],[0x729670,0x868,0xd4]],}
 
 def ReadMemory(address):
     global PROCESS, buffer
+
+    OldProtect = ctypes.c_size_t()
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel32.VirtualProtect(address, 1, 0x40, ctypes.byref(OldProtect));
+    
     rPM(PROCESS.handle, address, buffer, 4, ctypes.byref(bytes_read))
     ret = 0x0
     cnt = len(buffer.value) -1
@@ -114,6 +120,7 @@ RedWordCountDown    = MemReader(address_list["RedWordCountDown"][PVZ_VER])
 InterfaceState      = MemReader(address_list["InterfaceState"][PVZ_VER])
 WordKind            = MemReader(address_list["WordKind"][PVZ_VER])
 WordShow            = MemReader(address_list["WordShow"][PVZ_VER])
+PlantNum            = MemReader(address_list["PlantNum"][PVZ_VER])
 
 def Countdown():
     countdown = WaveCountdown()
