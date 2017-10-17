@@ -9,7 +9,7 @@ Modified Date: 2017-9-24 22:00
 '''
 
 import win32api, win32con, win32gui, win32process, ctypes, threading, win32ui
-import time
+import time, os, shutil
 from time import sleep
 
 hwnd = win32gui.WindowFromPoint(win32api.GetCursorPos())
@@ -22,6 +22,7 @@ PROCESS_ALL_ACCESS  =  ( 0x000F0000 | 0x00100000 | 0xFFF )
 tid,pid = win32process.GetWindowThreadProcessId(hwnd)
 PROCESS = win32api.OpenProcess(PROCESS_ALL_ACCESS, 0, pid)
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+saveFile = r"C:\ProgramData\PopCap Games\PlantsVsZombies\userdata\game1_13.dat"
 
 #植物大战僵尸版本，0原版，1年度版
 PVZ_VER = 1
@@ -145,25 +146,44 @@ def WriteMemory(address, b):
 def NoPause():
     if PVZ_VER == 1:
         WriteMemory(0x4536b0,ctypes.create_string_buffer(bytes.fromhex('c20400')))
+
+backupList = []
+def BackUp(path):
+    datname = time.strftime('%Y-%m-%d %H-%M-%S',time.localtime(time.time())) + '.dat'
+    datname = path + datname
+    shutil.copy (saveFile, datname)
+    print("copy success")
+    backupList.append(datname)
+    if len(backupList) > 10:
+        os.remove(backupList[0])
+        del(backupList[0])
         
-def ScreenShot(dpath): 
+def GetColor(x, y):
     hwndDC = win32gui.GetDC(hwnd)  
-    mfcDC=win32ui.CreateDCFromHandle(hwndDC)  
-    saveDC=mfcDC.CreateCompatibleDC()  
-    saveBitMap = win32ui.CreateBitmap()  
+    ret = win32gui.GetPixel(hwndDC, x, y)
+    win32gui.ReleaseDC(hwnd, hwndDC)
+    return ret
+
+def ScreenShot(dpath): 
+    hwndDC = win32gui.GetDC(hwnd)
+    memDc = win32gui.CreateCompatibleDC(hwndDC)
+    hBmp   = win32gui.CreateCompatibleBitmap(hwndDC, 800, 600)
+    oldBmp = win32gui.SelectObject(memDc, hBmp)
+
+    win32gui.BitBlt(memDc,0,0,800,600,hwndDC,0,0,win32con.SRCCOPY);
     
-    w = 800
-    h = 600
-    print(w,h) #图片大小 
-    saveBitMap.CreateCompatibleBitmap(mfcDC, w, h)  
-    saveDC.SelectObject(saveBitMap)  
-    saveDC.BitBlt((0,0),(w, h) , mfcDC, (0,0), win32con.SRCCOPY) 
-    cc=time.gmtime() 
-    bmpname=str(cc[0])+str(cc[1])+str(cc[2])+str(cc[3]+8)+str(cc[4])+str(cc[5])+'.bmp'
     bmpname = time.strftime('%Y-%m-%d %H-%M-%S',time.localtime(time.time())) + '.bmp'
     bmpname = dpath + bmpname
     print(bmpname)
-    saveBitMap.SaveBitmapFile(saveDC, bmpname) 
+
+    saveBitMap = win32ui.CreateBitmapFromHandle(hBmp)
+    saveDC = win32ui.CreateDCFromHandle(memDc)
+    saveBitMap.SaveBitmapFile(saveDC, bmpname)
+
+    win32gui.SelectObject(memDc, oldBmp)
+    win32gui.DeleteObject(memDc)
+    win32gui.DeleteObject(hBmp)
+    win32gui.ReleaseDC(hwnd, hwndDC)
 
 def ChooseCard(row, column, imitater = False):
     if(imitater):

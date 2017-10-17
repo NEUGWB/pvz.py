@@ -19,17 +19,32 @@ pvz.paoList = [(3,1),(4,1),(3,3),(4,3),(3,8),(4,8),(1,5),(2,5),(3,5),(4,5),(5,5)
 
 # 选卡界面选十张卡
 def ChoosingCard():
-    print("choose card", InterfaceState())
-    ChooseCard(2, 7) # 寒冰菇
-    ChooseCard(2, 8) # 核蘑菇
-    ChooseCard(3, 1) # 睡莲
-    ChooseCard(5, 4) # 咖啡豆
-    ChooseCard(1, 3) # 樱桃
-    ChooseCard(3, 2) # 倭瓜
-    ChooseCard(4, 4) # 三叶草
-    ChooseCard(4, 7) # 南瓜
-    ChooseCard(5, 3) # 玉米
-    ChooseCard(6, 8) # 炮
+    while True:
+        print("choose card", InterfaceState())
+        ChooseCard(2, 7) # 寒冰菇
+        ChooseCard(2, 8) # 核蘑菇
+        ChooseCard(3, 1) # 睡莲
+        ChooseCard(5, 4) # 咖啡豆
+        ChooseCard(1, 3) # 樱桃
+        ChooseCard(3, 2) # 倭瓜
+        ChooseCard(4, 4) # 三叶草
+        ChooseCard(4, 7) # 南瓜
+        ChooseCard(5, 3) # 玉米
+        ChooseCard(6, 8) # 炮
+
+        sleep(0.5)
+        LetsRock()
+        # sleep(0.2)
+        # Click(320, 400) # 有时候会出现警告窗口需要再点击一到多次YES
+        sleep(4) # 等切换到游戏场景, FE再加两秒
+        if InterfaceState() != 2: #按钮点成功
+            break
+
+        #把卡都点掉
+        for i in range(0, 20):
+            Card(1)
+            sleep(0.2)
+            
 
 # 在r路c列释放樱桃
 def A(r, c):
@@ -140,18 +155,15 @@ def CheckPlant():
     num = PlantNum()
     print("now plant", num)
     if 0 < num < nowPlantNum:
-        ScreenShot("./")
+        ScreenShot("./screen/")
         nowPlantNum = num
-        
+    if num < 50 or InterfaceState() == 4: #僵尸进屋
+        print("GameOver")
+        exit()
     
 def main():
     sleep(4) # 等四秒, 一般这段时间内开启录像
     ChoosingCard() # 选卡
-    sleep(0.5) # 等半秒
-    LetsRock() # 点 Let's Rock!
-    # sleep(0.2)
-    # Click(320, 400) # 有时候会出现警告窗口需要再点击一到多次YES
-    sleep(4) # 等切换到游戏场景, FE再加两秒
     #补瓜
     for gua in GuaList:
         Gua(*gua)
@@ -217,9 +229,12 @@ def main():
 
 # 代码只在作为主程序运行时执行
 if __name__ == '__main__':
+    print('nowopen %s' % win32gui.GetWindowText(hwnd)) # 打印窗口标题
+    NoPause()
+    pvz.nowPao = 4
+    sleep(2)
+        
     while True:
-        print('nowopen %s' % win32gui.GetWindowText(hwnd)) # 打印窗口标题
-        NoPause()
-        sleep(2)
+        BackUp(r'./save/')
         main()
         sleep(8)
