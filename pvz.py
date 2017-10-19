@@ -151,7 +151,8 @@ backupList = []
 def BackUp(path):
     datname = time.strftime('%Y-%m-%d %H-%M-%S',time.localtime(time.time())) + '.dat'
     datname = path + datname
-    shutil.copy (saveFile, datname)
+    if os.path.isfile(saveFile):
+        shutil.copy (saveFile, datname)
     print("copy success")
     backupList.append(datname)
     if len(backupList) > 10:
@@ -170,7 +171,8 @@ def ScreenShot(dpath):
     hBmp   = win32gui.CreateCompatibleBitmap(hwndDC, 800, 600)
     oldBmp = win32gui.SelectObject(memDc, hBmp)
 
-    win32gui.BitBlt(memDc,0,0,800,600,hwndDC,0,0,win32con.SRCCOPY);
+    #win32gui.BitBlt(memDc,0,0,800,600,hwndDC,0,0,win32con.SRCCOPY);
+    ctypes.windll.user32.PrintWindow(hwnd, memDc, 1)
     
     bmpname = time.strftime('%Y-%m-%d %H-%M-%S',time.localtime(time.time())) + '.bmp'
     bmpname = dpath + bmpname

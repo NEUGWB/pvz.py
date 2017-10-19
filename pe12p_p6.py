@@ -26,7 +26,7 @@ def ChoosingCard():
         ChooseCard(3, 1) # 睡莲
         ChooseCard(5, 4) # 咖啡豆
         ChooseCard(1, 3) # 樱桃
-        ChooseCard(3, 2) # 倭瓜
+        ChooseCard(2, 7, True) # 模仿
         ChooseCard(4, 4) # 三叶草
         ChooseCard(4, 7) # 南瓜
         ChooseCard(5, 3) # 玉米
@@ -47,9 +47,15 @@ def ChoosingCard():
             
 
 # 在r路c列释放樱桃
+nowA = 0
 def A(r, c):
-    Card(5)
+    global nowA
+    if nowA == 0:
+        Card(5)
+    else:
+        Card(6)
     Pnt((r, c))
+    nowA = (nowA+1)%2
 
 # 在r c放南瓜
 def Gua(r, c):
@@ -67,15 +73,30 @@ def N(r, c):
     Card(4)
     Pnt((r, c))
 
+ice = 0
+def I(r,c):
+    global ice
+    if ice == 0:
+        Card(1)
+        Pnt((r, c))
+        Card(4)
+        Pnt((r, c))
+        Card(6)
+        Pnt((7-r, c))
+    elif ice==1:
+        Card(4)
+        Pnt((7-r, c))
+    ice = (ice+1)%2
+
 def exPao(wave):
     for i in range(0,4):
-        sleep(3.75)
+        sleep(3.73)
         nextwave = False
         
         nextCount = 210
         if wave == 20:
             nextCount = 610
-        for i in range(0, 25):
+        for i in range(0, 22):
             wcd = WaveCountdown()
             if 0 < wcd <= nextCount:
                 nextwave = True
@@ -92,9 +113,9 @@ def exPao(wave):
         
 def exPao20():
     for i in range(0,4):
-        sleep(3.75)
+        sleep(3.73)
         nextwave = False
-        for i in range(0, 26):
+        for i in range(0, 22):
             if WordKind() == 12:
                 nextwave = True
                 break
@@ -124,7 +145,7 @@ def Collect():
             Pnt((row+0.35, col+0.35))
             Pnt((row+0.35, col-0.35))
             Pnt(block)
-            sleep(0.05)
+            sleep(0.01)
             
 #第十波用核弹消延迟           
 NList = [[2,8],[5,8]]
@@ -218,14 +239,35 @@ def main():
             if (wave in [9,19]):
                 exPao(wave)
             elif wave==1:
-                sleep(3.73-0.98 + 0.7)
+                '''
+                sleep(3.73-0.98 + 1)
                 A(2,9)
+                '''
 
 
         # 每一波操作都要运行到本波刷新以后, 除第20波外通常用的是0.95s和0.55s预判
         # 所以每波至少要延迟0.95s来保证本次循环执行到本波刷新以后再执行下一个循环
-        if not wave in [9,19,20]:
-            sleep(1)
+        if not wave in [9,19,20,10]:
+            sleep(3.8)
+            delay = True
+            for i in range(0, 14):
+                if WaveCountdown() < 1000:
+                    delay = False
+                    break
+                sleep(0.1)
+            if delay:
+                I(2,7)
+                #sleep(1)
+                #A(2,9)
+                print("monster delay pao end", WaveCountdown())
+                '''
+                if WaveCountdown() > 1000:
+                    sleep(2)
+                    Pao(2,9)
+                    Pao(5,9)
+                    sleep(1)
+                    '''
+                
 
 # 代码只在作为主程序运行时执行
 if __name__ == '__main__':
