@@ -47,15 +47,9 @@ def ChoosingCard():
             
 
 # 在r路c列释放樱桃
-nowA = 0
 def A(r, c):
-    global nowA
-    if nowA == 0:
-        Card(5)
-    else:
-        Card(6)
+    Card(5)
     Pnt((r, c))
-    nowA = (nowA+1)%2
 
 # 在r c放南瓜
 def Gua(r, c):
@@ -82,10 +76,10 @@ def I(r,c):
         Card(4)
         Pnt((r, c))
         Card(6)
-        Pnt((7-r, c))
+        Pnt((1,7))
     elif ice==1:
         Card(4)
-        Pnt((7-r, c))
+        Pnt((1,7))
     ice = (ice+1)%2
 
 def exPao(wave):
@@ -170,7 +164,7 @@ def ShanhuPao():
     else:
         Pao(4,7)
 
-nowPlantNum = 66 #最开始有66个固定植物
+nowPlantNum = 65 #最开始有66个固定植物
 def CheckPlant():
     global nowPlantNum
     num = PlantNum()
@@ -181,7 +175,7 @@ def CheckPlant():
     if num < 50 or InterfaceState() == 4: #僵尸进屋
         print("GameOver")
         exit()
-    
+
 def main():
     sleep(4) # 等四秒, 一般这段时间内开启录像
     ChoosingCard() # 选卡
@@ -190,10 +184,51 @@ def main():
         Gua(*gua)
         SafeClick()
     # wave的取值为1~20, 对应每次选卡共20波僵尸的处理
+    ch = False
+    antiDelay = 0
     for wave in range(1, 21):
         Collect()
         CheckPlant()
         print('wave: %s' % wave)
+
+        if ch:
+            #预判冰，打CH6
+            #preJudge(300)
+            for i in range(30):
+                if WaveCountdown() < 298:
+                    break
+                sleep(0.1)
+            print("change6, ice", WaveCountdown())
+            I(2, 7)
+            sleep(3)
+            print("ch ice effect", WaveCountdown())
+            sleep(5)
+            Pao(2, 9)
+            Pao(5, 9)
+            ch = False
+            if wave == 9 or wave == 19:
+                exPao(wave)
+            elif wave == 20:
+                exPao(20)
+            else:
+                sleep(3.8)
+                delay = True
+                for i in range(0, 14):
+                    if WaveCountdown() < 1000:
+                        delay = False
+                        break
+                    sleep(0.1)
+                if delay:
+                    if antiDelay == 2:
+                        sleep(2)
+                        A(2, 9)
+                    else:
+                        Pao(2,9)
+                        Pao(5,9)
+                        ch = True
+                    antiDelay = (antiDelay + 1)%3
+            continue
+                    
         # 常用预判时间95cs
         # 第10波僵尸出生点偏右, 推迟到55cs并用樱桃补刀来消除延迟
         # 第20波预判150cs可炮炸珊瑚
@@ -238,11 +273,10 @@ def main():
             # 一般第9波打完两炮后还需要4门炮(加上冰瓜IO), 第9波打完两炮后还需要2门炮(自然出怪下)
             if (wave in [9,19]):
                 exPao(wave)
+            '''
             elif wave==1:
-                '''
                 sleep(3.73-0.98 + 1)
-                A(2,9)
-                '''
+                A(2,9)'''
 
 
         # 每一波操作都要运行到本波刷新以后, 除第20波外通常用的是0.95s和0.55s预判
@@ -256,24 +290,20 @@ def main():
                     break
                 sleep(0.1)
             if delay:
-                I(2,7)
-                #sleep(1)
-                #A(2,9)
-                print("monster delay pao end", WaveCountdown())
-                '''
-                if WaveCountdown() > 1000:
+                if antiDelay == 2:
                     sleep(2)
+                    A(2, 9)
+                else:
                     Pao(2,9)
                     Pao(5,9)
-                    sleep(1)
-                    '''
-                
+                    ch = True
+                antiDelay = (antiDelay + 1)%3
 
 # 代码只在作为主程序运行时执行
 if __name__ == '__main__':
     print('nowopen %s' % win32gui.GetWindowText(hwnd)) # 打印窗口标题
     NoPause()
-    pvz.nowPao = 4
+    pvz.nowPao = 5
     sleep(2)
         
     while True:
