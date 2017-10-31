@@ -35,20 +35,31 @@ address_list = { "WaveCountDown" :  [[0x6a9ec0, 0x768, 0x559c], [0x729670, 0x868
                  "WordShow" :       [[0x6a9ec0, 0x768, 0x140,0x4],[0x729670,0x868,0x158,0x4]],
                  "PlantNum" :       [[0x6A9EC0, 0x768, 0xbc],[0x729670,0x868,0xd4]],}
 
+protectAddress = {}
+def MyVirtualProtect(addr):
+    OldProtect = ctypes.c_uint()
+    if addr not in protectAddress:
+        kernel32.VirtualProtect(addr, 4, 0x40, ctypes.byref(OldProtect))
+        protectAddress[addr] = OldProtect
+        
 def ReadMemory(address):
     buffer = ctypes.create_string_buffer(4)
     bytes_read = ctypes.c_size_t()
 
-    OldProtect = ctypes.c_size_t()
-    kernel32.VirtualProtect(address, 1, 0x40, ctypes.byref(OldProtect));
+    MyVirtualProtect(address)
     
-    kernel32.ReadProcessMemory(PROCESS.handle, address, buffer, 4, ctypes.byref(bytes_read))
+    suc = kernel32.ReadProcessMemory(PROCESS.handle, address, buffer, 4, ctypes.byref(bytes_read))
+    if suc == 0 or bytes_read==0:
+        print("Read Mem Error", win32api.GetLastError())
+        return 0
+
     ret = 0x0
     cnt = len(buffer.value) -1
     while cnt >= 0:
         ret *= 256
         ret += buffer.value[cnt]
         cnt -= 1
+        
     return ret
 
 def MemReader(addr):
@@ -60,8 +71,6 @@ def MemReader(addr):
             for i in range(1, len(addr)):
                 mem = ReadMemory(mem)
                 mem = mem + addr[i]
-            for i in range(0, len(addr)-1):
-                mem
         return ReadMemory(mem)
     return Reader
 
@@ -95,6 +104,19 @@ def Click(x, y, right = False):
         MDOWN(x, y)
         MUP(x, y)
 
+def EnsureClick(x, y, right = False):
+    sleep(0.15)
+    if(right):
+        MDOWN(x, y, True)
+        sleep(0.01)
+        MUP(x, y, True)
+    else:
+        MDOWN(x, y)
+        sleep(0.01)
+        MUP(x, y)
+    sleep(0.01)
+
+
 def MoveClick(x, y, right = False):
     x_0, y_0 = win32gui.GetCursorPos()
     left, top, right, bottom = win32gui.GetWindowRect(hwnd)
@@ -103,10 +125,9 @@ def MoveClick(x, y, right = False):
     x_1, y_1 = left + border_width + x, top + title_bar_height + y
     x_1, y_1 = int(x_1), int(y_1)
     win32api.SetCursorPos((x_1, y_1))
-    sleep(0.02)
-    MDOWN(x, y)
-    sleep(0.05)
-    MUP(x, y)
+    sleep(0.15)
+    Click(x,y)
+    sleep(0.01)
     win32api.SetCursorPos((x_0, y_0))
 
 def SafeClick():
@@ -129,7 +150,7 @@ def Countdown():
 
 def WriteMemory(address, b):
     OldProtect = ctypes.c_size_t()
-    kernel32.VirtualProtect(address, 1, 0x40, ctypes.byref(OldProtect));
+    MyVirtualProtect(address)
 
     print("write mem", ctypes.sizeof(b), b.raw)
     bytes_write = ctypes.c_size_t()
@@ -155,8 +176,9 @@ def BackUp(path):
         shutil.copy (saveFile, datname)
     print("copy success")
     backupList.append(datname)
-    if len(backupList) > 10:
-        os.remove(backupList[0])
+    if len(backupList) > 3:
+        if os.path.isfile(backupList[0]):
+            os.remove(backupList[0])
         del(backupList[0])
         
 def GetColor(x, y):
@@ -197,11 +219,10 @@ def ChooseCard(row, column, imitater = False):
         x = 22 + 50/2 + (column - 1) * 53
         y = 123 + 70/2 + (row - 1) * 70
     Click(x, y)
-    sleep(0.2)
+    sleep(0.05)
 
 def LetsRock():
-    sleep(0.2)
-    MoveClick(234, 567)
+    EnsureClick(234, 567)
 
 def Card(num):
     Click(50 + 51 * num, 42)
@@ -241,7 +262,7 @@ def preJudge(t, hugewave = False):
 def Pao(row, column):
     global nowPao, paoList
     print("Pao", paoList[nowPao], row, column)
-    for i in range(10):
+    for i in range(3):
         Pnt(paoList[nowPao])
     #sleep(0.1)
     Pnt((row, column))
