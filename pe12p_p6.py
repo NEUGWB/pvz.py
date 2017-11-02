@@ -62,23 +62,18 @@ ice = 0
 def I(r,c):
     global ice
     if ice == 0:
-        Card(1)
-        Pnt((r, c))
-        Card(4)
-        Pnt((r, c))
-        Card(6)
-        Pnt((1,1))
+        UseCard(1, r, c)
+        UseCard(4, r, c)
+        UseCard(6, 1, 1)
     elif ice==1:
-        Card(4)
-        Pnt((1,1))
+        UseCard(4, 1, 1)
     SafeClick()
     ice = (ice+1)%2
 
 def exPao(wave):
     sleep(3.6)
     if wave == 20:
-        Card(7)
-        Pnt((1, 7))
+        UseCard(7, 1, 7)
     else:
         FixGua()
     def Pred_9_19():
@@ -229,8 +224,7 @@ def main():
             N(*NList[nowN])
             sleep(0.5)
             # 风扇吹走漏炸的气球
-            Card(7)
-            Pnt((1, 7))
+            UseCard(7, 1, 7)
         elif (wave == 20):
             # 第20波预判1.5s炮炸珊瑚, 等待0.9s后再炸前场
             print("zha shanhu", pvz.paoList[pvz.nowPao])
