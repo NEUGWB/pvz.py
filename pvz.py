@@ -191,18 +191,35 @@ def TimeStamp():
     stamp = time.strftime('%Y-%m-%d %H-%M-%S',time.localtime(tm))
     stamp = stamp + "." + str(ms)
     return stamp
+    
+def SafeDelete(path):
+    try:
+        if os.path.isfile(path):
+            os.remove(path)
+        else:
+            print("delete nonexistent file", path)
+    except:
+        print("delete file error", path)
+    
+def SafeCopy(src, dst):
+    try:
+        if os.path.isfile(src):
+            shutil.copy (src, dst)
+        else:
+            print("copy nonexistent file", src)
+    except:
+        print("copy file error", src, "->", dst)
+
 #用队列的方式备份存档，只备份最近若干个
 backupList = []
 def BackUp(path):
     datname = TimeStamp() + '.dat'
     datname = path + datname
-    if os.path.isfile(saveFile):
-        shutil.copy (saveFile, datname)
+    SafeCopy(saveFile, datname)
     print("copy success")
     backupList.append(datname)
     if len(backupList) > 3:
-        if os.path.isfile(backupList[0]):
-            os.remove(backupList[0])
+        SafeDelete(backupList[0])
         del(backupList[0])
 
 #取色
@@ -213,6 +230,7 @@ def GetColor(x, y):
     return ret
 
 #截图
+screenList = []
 def ScreenShot(dpath): 
     hwndDC = win32gui.GetDC(hwnd)
     memDc = win32gui.CreateCompatibleDC(hwndDC)
@@ -236,8 +254,12 @@ def ScreenShot(dpath):
     
     jpgname = bmpname[:-4]+".jpg"
     Image.open(bmpname).save(jpgname)
-    #print(jpgname)
-    os.remove(bmpname)
+    SafeDelete(bmpname)
+    
+    screenList.append(jpgname)
+    if len(screenList) > 300:
+        SafeDelete(screenList[0])
+        del(screenList[0])
 
 def ChooseCard(row, column, imitater = False):
     opRLock.acquire()

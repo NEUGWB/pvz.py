@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*- 
-'''
-作者: lmintlcx
-日期: 2017-9-24 22:13
----
-PE经典十炮
-节奏 P6: PP|PP|PP|PP|PP|N
-视频 https://www.bilibili.com/video/av14875298/
-'''
 
 # 导入模块
 import pvz
@@ -53,24 +45,18 @@ def ChoosingCard():
 
 # 在r路c列释放樱桃
 def A(r, c):
-    Card(5)
-    Pnt((r, c))
+    return UseCard(5, r, c)
 
 # 在r c放南瓜
 def Gua(r, c):
-    Card(8)
-    Pnt((r,c))
+    return UseCard(8, r, c)
+
 GuaList = [[1,1],[2,1],[5,1],[6,1],[3,9],[4,9]]
 
 # 在r路c列释放核蘑菇
 def N(r, c):
-    if r in [3,4]:
-        Card(3)
-        Pnt((r, c))
-    Card(2)
-    Pnt((r, c))
-    Card(4)
-    Pnt((r, c))
+    UseCard(2, r, c)
+    UseCard(4, r, c)
 
 ice = 0
 def I(r,c):
