@@ -16,7 +16,7 @@ from pvz import *
 # 场上所有炮的位置列表, 一般以后轮坐标为准
 pvz.scene = 'PE'
 pvz.paoList = [(3,1),(4,1),(3,3),(4,3),(3,8),(4,8),(1,5),(2,5),(3,5),(4,5),(5,5),(6,5)]
-pvz.nowPao = 4
+pvz.nowPao = 10
 
 antiDelay = 0
 ch = False
@@ -90,7 +90,6 @@ def I(r,c):
 
 def exPao(wave):
     sleep(3.6)
-    Collect()
     if wave == 20:
         Card(7)
         Pnt((1, 7))
@@ -122,26 +121,9 @@ def exPao(wave):
         Pao(2,9)
         Pao(5,9)
         
-        Collect()
         CheckPlant()
         
-collectArea = [ [(1,2),(1,3),(1,4),(2,2),(2,3),(2,4)]
-            ,   [(5,2),(5,3),(5,4),(6,2),(6,3),(6,4)]
-            ,   [(1,9),(2,9),(3,9),(4,9),(5,9),(6,9)]
-            ,   [(1,1),(2,1),(5,1),(6,1),(1,8),(2,8),(5,8),(6,8),(6,9)]]
-def Collect():
-    for area in collectArea:
-        for block in area:
-            row = block[0]
-            col = block[1]
-            Pnt((row-0.33, col-0.33))
-            Pnt((row-0.33, col+0.33))
-            Pnt((row+0.33, col+0.33))
-            Pnt((row+0.33, col-0.33))
-            Pnt(block)
-            SafeClick()
-            sleep(0.01)
-            
+
 #第十波用核弹消延迟           
 NList = [[2,8],[5,8]]
 nowN = 1
@@ -169,12 +151,14 @@ nowPlantNum = 65 #固定植物
 def CheckPlant():
     global nowPlantNum
     num = PlantNum()
+    if num == 0:
+        return
     print("now plant", num)
-    if 0 < num < nowPlantNum:
-        ScreenShot("./screen/")
+    if num < nowPlantNum:
         nowPlantNum = num
-    if num < 50 or InterfaceState() == 4: #僵尸进屋
+    if num < 63 or InterfaceState() == 4: #僵尸进屋
         print("GameOver")
+        TaskStop = True
         exit()
 #补瓜
 def FixGua():
@@ -184,7 +168,6 @@ def FixGua():
 
 def CheckDelay():
     sleep(3.73)
-    Collect()
     delay = True
     for i in range(0, 140):
         if 0 < WaveCountdown() < 1000:
@@ -211,6 +194,8 @@ def main():
     global antiDelay, ch
     antiDelay = 0
     ch = False
+    print("TaskEvent.clear()")
+    TaskEvent.set()
     for wave in range(1, 21):
         CheckPlant()
         print('wave: %s' % wave)
@@ -222,7 +207,6 @@ def main():
             I(2, 7)
             sleep(3)
             print("ch ice effect", WaveCountdown())
-            Collect()
             sleep(4.0)
             Pao(2, 9)
             Pao(5, 9)
@@ -234,24 +218,6 @@ def main():
                 if delay:
                     print("ch delay......", wave)
                     AntiDelay()
-                '''
-                sleep(3.6)
-                delay = True
-                Collect()
-                for i in range(0, 140):
-                    if 0 < WaveCountdown() < 1000:
-                        delay = False
-                        break
-                    sleep(0.01)
-                if delay:
-                    if antiDelay == 2:
-                        sleep(2)
-                        A(2, 9)
-                    else:
-                        Pao(2,9)
-                        Pao(5,9)
-                        ch = True
-                    antiDelay = (antiDelay + 1)%3'''
             continue
                     
         # 常用预判时间95cs
@@ -304,32 +270,22 @@ def main():
             if delay:
                 print("delay......", wave)
                 AntiDelay()
-            '''
-            delay = True
-            for i in range(0, 140):
-                if 0 < WaveCountdown() < 1000:
-                    delay = False
-                    break
-                sleep(0.01)
-            if delay:
-                if antiDelay == 2:
-                    sleep(2)
-                    A(2, 9)
-                else:
-                    Pao(2,9)
-                    Pao(5,9)
-                    ch = True
-                antiDelay = (antiDelay + 1)%3
-            else:
-                print("no delay", i, WaveCountdown())'''
+    print("TaskEvent.clear()")
+    TaskEvent.clear()        
 
 # 代码只在作为主程序运行时执行
 if __name__ == '__main__':
     print('nowopen %s' % win32gui.GetWindowText(hwnd)) # 打印窗口标题
     NoPause()
     sleep(2)
-        
+    
+    TaskEvent.clear()
+    backThread = threading.Thread(target = BackTask, name = "BackThread")
+    backThread.setDaemon(True) # 后台线程, 主线程停止运行时后台线程同样退出
+    backThread.start()
+    
     while True:
         BackUp(r'./save/')
+        
         main()
         sleep(8)
