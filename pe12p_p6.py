@@ -71,7 +71,7 @@ def I(r,c):
     ice = (ice+1)%2
 
 def exPao(wave):
-    sleep(3.6)
+    sleep(3.75)
     if wave == 20:
         UseCard(7, 1, 7)
     else:
@@ -85,7 +85,7 @@ def exPao(wave):
         pred = Pred_20
     else:
         pred = Pred_9_19
-    checkTime = (2.5, 9, 0.1, 6)
+    checkTime = (2.5, 10, 0.1, 6)
     
     for i in range(0,4):
         nextwave = False
@@ -183,7 +183,7 @@ def main():
 
         if ch:
             #预判冰，打CH6，实际上只能预判200
-            preJudge(300)
+            preJudge(250)
             print("change6, ice", WaveCountdown())
             I(2, 7)
             sleep(3)

@@ -156,14 +156,6 @@ WordShow            = MemReader(address_list["WordShow"][PVZ_VER])
 PlantNum            = MemReader(address_list["PlantNum"][PVZ_VER])
 MouseState          = MemReader(address_list["MouseState"][PVZ_VER])
 
-#WaveCountdown直接调用可能读到0，这个保证读到有效值
-def Countdown():
-    countdown = WaveCountdown()
-    while countdown == 0 :
-        countdown = WaveCountdown()
-        sleep(0.005)
-    return countdown
-
 def WriteMemory(address, b):
     OldProtect = ctypes.c_size_t()
     MyVirtualProtect(address)
@@ -315,17 +307,22 @@ def UseCard(card, r, c):
     opRLock.release()
     return ret
     
+def WaitWaveCountDown(pre):
+    tmbegin = time.time()
+    while True:
+        if 0 < WaveCountdown() <= pre:
+            break
+        else:
+            sleep(0.005)
+            if time.time() - tmbegin > 20:# 20秒没发炮肯定是哪出问题了
+                print("preJudge timeout!!!")
+                exit()
+            
 def preJudge(t, hugewave = False):
     if(hugewave == False):
-        while(Countdown() > t):
-            sleep(0.01)
+        WaitWaveCountDown(t)
     else:
-        while(Countdown() > 4):
-            sleep(0.01)
-            
-        #sleep((724-t)/100)
-        delay = 200
-        #while(RedWordCountDown() != 0 and RedWordCountDown() + delay > t):
+        WaitWaveCountDown(4)
         while True:
             rwcd = RedWordCountDown()
             if(rwcd > 0 and rwcd < 700):
