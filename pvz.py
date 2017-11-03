@@ -50,10 +50,11 @@ def MyVirtualProtect(addr):
 def ReadMemory(address):
     buffer = ctypes.create_string_buffer(4)
     bytes_read = ctypes.c_size_t()
-
-    MyVirtualProtect(address)
     
+    opRLock.acquire()
+    MyVirtualProtect(address)
     suc = kernel32.ReadProcessMemory(PROCESS.handle, address, buffer, 4, ctypes.byref(bytes_read))
+    opRLock.release()
     if suc == 0:
         print("Read Mem Error", win32api.GetLastError(), address)
         #traceback.print_stack() 
@@ -157,7 +158,6 @@ PlantNum            = MemReader(address_list["PlantNum"][PVZ_VER])
 MouseState          = MemReader(address_list["MouseState"][PVZ_VER])
 
 def WriteMemory(address, b):
-    OldProtect = ctypes.c_size_t()
     MyVirtualProtect(address)
 
     print("write mem", ctypes.sizeof(b), b.raw)
@@ -330,16 +330,25 @@ def preJudge(t, hugewave = False):
         print("RedwordCount", rwcd, WordKind())
         sleep((rwcd + 4 - t)/100)
 
-def Pao(row, column):
+def Pao(row, column, shanhu = False):
     opRLock.acquire()
     global paoList, nowPao
     pntcount = 0
     while True:
         pntcount += 1
-        #print("pnt pao", paoList[nowPao])
-        #for i in range(3):
-        Pnt(paoList[nowPao])
-        sleep(0.001)
+        if pntcount > 500:
+            print("No Pao ???")
+            exit()
+        for i in range(3):
+            pntPao = paoList[nowPao]
+        if shanhu:
+            if pntPao == (4,7) or pntPao == (4,8):
+                nowPao = (1+nowPao)%len(paoList)
+                continue
+            elif pntPao == (3,7):
+                pntPao == (3,8)
+        Pnt(pntPao)
+        sleep(0.01)
         nowPao = (1+nowPao)%len(paoList)
         mst = MouseState()
         if mst != 8:
@@ -366,27 +375,32 @@ def Collector():
         row = block[0]
         col = block[1]
         opRLock.acquire()
+        
         Pnt((row-0.33, col-0.33))
         Pnt((row-0.33, col+0.33))
         Pnt((row+0.33, col+0.33))
         Pnt((row+0.33, col-0.33))
-        Pnt(block)
+        
+        #Pnt(block)
         SafeClick()
         opRLock.release()
     return _Collect
 Collect = Collector()
 
 #(十分之一秒倍数，任务函数，参数)组成的列表
-TaskList = [(1, Collect, ()), (10, ScreenShot, ("./screen/",))]
+#TaskList = [(1, Collect, ()), (10, ScreenShot, ("./screen/",))]
+TaskList = []
 TaskStop = False
 TaskEvent = threading.Event() 
 def BackTask():
     ds = 0 #十分之一秒
     while not TaskStop:
+        '''
         TaskEvent.wait()
         for task in TaskList:
             if ds % task[0] == 0:
                 task[1](*task[2])
-        sleep(0.1)
+        '''
+        sleep(100)
         ds += 1
         

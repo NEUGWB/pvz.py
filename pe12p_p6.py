@@ -109,25 +109,6 @@ def exPao(wave):
 NList = [[2,8],[5,8]]
 nowN = 1
 
-#防止炮自己炸自己放不出来，炮列表(3,6)(4,6)用(3,5)(4,5)代替
-def ShanhuPao():
-    if pvz.paoList[pvz.nowPao] == (3,7) or pvz.paoList[pvz.nowPao] == (3,8):
-        print("shanhupao", pvz.paoList[pvz.nowPao], 4,7)
-        for i in range(10):
-            Pnt((3,8))
-        Pnt((4,7))
-        SafeClick()
-        pvz.nowPao = (1+pvz.nowPao)%len(pvz.paoList)
-    elif pvz.paoList[pvz.nowPao] == (4,7) or pvz.paoList[pvz.nowPao] == (4,8):
-        print("shanhupao", pvz.paoList[pvz.nowPao], 3,7)
-        for i in range(10):
-            Pnt((4,8))
-        Pnt((3,7))
-        SafeClick()
-        pvz.nowPao = (1+pvz.nowPao)%len(pvz.paoList)
-    else:
-        Pao(4,7)
-
 nowPlantNum = 65 #固定植物
 def CheckPlant():
     global nowPlantNum
@@ -227,8 +208,7 @@ def main():
             UseCard(7, 1, 7)
         elif (wave == 20):
             # 第20波预判1.5s炮炸珊瑚, 等待0.9s后再炸前场
-            print("zha shanhu", pvz.paoList[pvz.nowPao])
-            ShanhuPao()
+            Pao(4,7,True)
             sleep(0.9)
             Pao(2,9)
             Pao(5,9)
@@ -258,6 +238,7 @@ if __name__ == '__main__':
     print('nowopen %s' % win32gui.GetWindowText(hwnd)) # 打印窗口标题
     NoPause()
     sleep(2)
+    
     
     TaskEvent.clear()
     backThread = threading.Thread(target = BackTask, name = "BackThread")
