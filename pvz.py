@@ -330,7 +330,7 @@ def preJudge(t, hugewave = False):
         print("RedwordCount", rwcd, WordKind())
         sleep((rwcd + 4 - t)/100)
 
-def Pao(row, column, shanhu = False):
+def Pao(row, column):
     opRLock.acquire()
     global paoList, nowPao
     pntcount = 0
@@ -339,15 +339,15 @@ def Pao(row, column, shanhu = False):
         if pntcount > 500:
             print("No Pao ???")
             exit()
-        for i in range(3):
-            pntPao = paoList[nowPao]
-        if shanhu:
-            if pntPao == (4,7) or pntPao == (4,8):
+        pntPao = paoList[nowPao]
+        if abs(pntPao[0]-row) + abs(pntPao[1]-column) < 2:
+            if abs(pntPao[0]-row) + abs(pntPao[1]+1-column) >= 2:
+                pntPao = (pntPao[0],pntPao[1]+1)
+            else:
                 nowPao = (1+nowPao)%len(paoList)
                 continue
-            elif pntPao == (3,7):
-                pntPao == (3,8)
-        Pnt(pntPao)
+        for i in range(5):
+            Pnt(pntPao)
         sleep(0.01)
         nowPao = (1+nowPao)%len(paoList)
         mst = MouseState()
@@ -356,7 +356,7 @@ def Pao(row, column, shanhu = False):
         else:
             break
 
-    print("Pao", paoList[nowPao - 1], row, column, "pntcount", pntcount)
+    #print("Pao", paoList[nowPao - 1], row, column, "pntcount", pntcount)
     Pnt((row, column))
     SafeClick()
     opRLock.release()
